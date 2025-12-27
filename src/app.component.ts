@@ -1,5 +1,4 @@
 
-
 import { ChangeDetectionStrategy, Component, inject, signal, ElementRef, viewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GeminiService } from './services/gemini.service';
@@ -237,37 +236,32 @@ export class AppComponent implements OnDestroy {
   }
 
   private parsePrismaResponse(text: string): Analysis {
-    const parts = text.split('|').map(p => p.trim());
-    let analysis: Partial<Analysis> = {};
+    const signalMatch = text.match(/SINAL:\s*(\w+)/i);
+    const assetMatch = text.match(/no\s+([A-Z\/]+)/i);
+    const reasonMatch = text.match(/MOTIVO:\s*([^.]+)/i);
+    const confidenceMatch = text.match(/Confiança:\s*(\d+%)/i);
 
-    parts.forEach(part => {
-        if (part.startsWith('ATIVO:')) {
-            analysis.asset = part.replace('ATIVO:', '').trim();
-        } else if (part.startsWith('SINAL:')) {
-            analysis.signal = part.replace('SINAL:', '').trim().toUpperCase() as any;
-        } else if (part.startsWith('ASSERTIVIDADE:')) {
-            analysis.assertividade = part.replace('ASSERTIVIDADE:', '').trim();
-        } else if (part.startsWith('MOTIVO:')) {
-            analysis.reason = part.replace('MOTIVO:', '').trim();
-        }
-    });
+    const signal = (signalMatch?.[1]?.toUpperCase() || 'ERRO') as 'COMPRA' | 'VENDA' | 'AGUARDAR' | 'ERRO';
+    const asset = assetMatch?.[1] || '---';
+    const reason = reasonMatch?.[1]?.trim() || 'Análise Inconclusiva';
+    const assertividade = confidenceMatch?.[1] || '--%';
 
     return {
-      signal: analysis.signal || 'ERRO',
+      signal: signal,
       time: new Date().toLocaleTimeString('pt-BR'),
-      reason: analysis.reason || 'Análise Inconclusiva',
-      asset: analysis.asset || '---',
-      assertividade: analysis.assertividade || '--%'
+      reason: reason,
+      asset: asset,
+      assertividade: assertividade
     };
   }
   
   private speak(text: string): void {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      // FIX: Corrected typo from 'SpeechSynthesisUtterce' to 'SpeechSynthesisUtterance'.
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'pt-BR';
       utterance.rate = 1.2;
+      utterance.pitch = 1.0;
       window.speechSynthesis.speak(utterance);
     } else {
       console.warn('Text-to-speech não é suportado neste navegador.');
