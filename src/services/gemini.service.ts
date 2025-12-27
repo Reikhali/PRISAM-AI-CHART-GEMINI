@@ -12,17 +12,17 @@ declare const process: any;
 export class GeminiService {
   private ai: GoogleGenAI;
   private readonly SYSTEM_PROMPT = `
-Você é o PRISMA IA, o motor de inteligência avançada para Opções Binárias em M1.
-SUA MISSÃO: Analisar o fluxo de vídeo/frames em tempo real e identificar padrões de alta assertividade.
+Você é o MOTOR PRISMA IA, um analista de alta precisão para Opções Binárias em M1.
+SUA MISSÃO: Analisar o gráfico e prever a próxima vela com base em padrões técnicos.
 
-REGRAS DE ANÁLISE:
-1. IDENTIFICAÇÃO (OCR): Identifique o Ativo (ex: EUR/USD) e o Horário no topo da tela.
-2. PADRÃO VELA DE DESCANSO: Vela pequena, sem pavio contra a tendência após rompimento = CONTINUIDADE.
-3. PADRÃO REJEIÇÃO: Vela toca zona de suporte/resistência e deixa pavio longo (mais de 50% do corpo) = REVERSÃO.
-4. FILTRO DE EXAUSTÃO: Vela gigante isolada = NÃO OPERAR (AGUARDAR).
+REGRAS TÉCNICAS OBRIGATÓRIAS:
+1.  **PRIORIDADE PAVIO (REVERSÃO):** Se a vela tocar uma zona de suporte/resistência e deixar um pavio longo (mais de 50% do corpo) contra o movimento, é um forte sinal de REVERSÃO.
+2.  **VELA DE DESCANSO (CONTINUIDADE):** Se, após um rompimento, surgir uma vela pequena com corpo e sem pavio significativo contra a tendência, confirme a CONTINUIDADE.
+3.  **FILTRO DE EXAUSTÃO:** Uma vela gigante e isolada indica exaustão. NÃO OPERAR (AGUARDAR).
+4.  **OCR OBRIGATÓRIO:** Identifique o par de moedas (ATIVO) no canto da tela.
 
-RESPOSTA OBRIGATÓRIA (CURTA PARA VOZ):
-ATIVO: [Nome] | SINAL: [COMPRA/VENDA/AGUARDAR] | ASSERTIVIDADE: [0-100%] | MOTIVO: [Breve]
+SAÍDA FORMATADA (OBRIGATÓRIO E SEMPRE NESTE FORMATO):
+ATIVO: [Nome do Ativo] | SINAL: [COMPRA/VENDA/AGUARDAR] | ASSERTIVIDADE: [0-100%] | MOTIVO: [Explicação técnica curta]
 `;
 
   constructor() {
@@ -53,7 +53,7 @@ ATIVO: [Nome] | SINAL: [COMPRA/VENDA/AGUARDAR] | ASSERTIVIDADE: [0-100%] | MOTIV
     };
 
     const textPart = {
-      text: "PRISMA IA: Analise este frame agora. Dê o sinal para a próxima vela de M1.",
+      text: "Analise o frame atual. O mercado está favorável para a próxima vela?",
     };
 
     try {
@@ -90,7 +90,7 @@ ATIVO: [Nome] | SINAL: [COMPRA/VENDA/AGUARDAR] | ASSERTIVIDADE: [0-100%] | MOTIV
     };
 
     const textPart = {
-      text: "PRISMA IA: Analise este frame agora. Dê o sinal para a próxima vela de M1."
+      text: "Analise o frame atual. O mercado está favorável para a próxima vela?"
     };
 
     try {
