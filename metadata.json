@@ -1,0 +1,5 @@
+{
+  "name": "Prisma AI Chart Analyzer",
+  "description": "An application that uses AI to analyze financial chart images and provide trading signals, inspired by the Prisma IA concept.",
+  "requestFramePermissions": []
+}
