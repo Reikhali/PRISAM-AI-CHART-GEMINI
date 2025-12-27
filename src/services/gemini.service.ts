@@ -26,18 +26,6 @@ ASSERTIVIDADE: [X%]
 MOTIVO: [Explicação técnica de 1 frase]
 `;
 
-  private readonly SYSTEM_PROMPT_LIVE = `
-Você é o PRISMA IA. Analise este frame de M1.
-Siga esta hierarquia de decisão:
-1. IDENTIFICAÇÃO: Qual o Ativo e Horário na tela?
-2. REJEIÇÃO: A vela atual tem pavio longo em zona de suporte/resistência anterior? (Se sim, Reversão).
-3. CONTINUIDADE: A vela atual é pequena e sem pavio superior em tendência de alta? (Se sim, Compra/Call).
-4. EXAUSTÃO: A vela é desproporcionalmente grande? (Se sim, ignore sinal de continuidade).
-
-RESPOSTA CURTA PARA VOZ:
-"Sinal de [COMPRA/VENDA] no [ATIVO]. Motivo: [PAVIO/FLUXO/DESCANSO]."
-`;
-
   constructor() {
     // IMPORTANT: The API key is sourced from environment variables for security.
     // Do not hardcode API keys in the application.
@@ -102,12 +90,15 @@ RESPOSTA CURTA PARA VOZ:
       },
     };
 
+    const textPart = {
+      text: "Analise o Ativo e o Fluxo de Vela (Price Action). Dê sinal de COMPRA ou VENDA para o próximo minuto. Seja rápido."
+    };
+
     try {
       const response: GenerateContentResponse = await this.ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: { parts: [imagePart] },
+        contents: { parts: [textPart, imagePart] },
         config: {
-          systemInstruction: this.SYSTEM_PROMPT_LIVE,
           temperature: 0.1, // Even more deterministic for live mode
         },
       });

@@ -49,6 +49,10 @@ export class AppComponent implements OnDestroy {
   videoElement = viewChild<ElementRef<HTMLVideoElement>>('videoElement');
   canvasElement = viewChild<ElementRef<HTMLCanvasElement>>('canvasElement');
   
+  constructor() {
+    this.loadHistoryFromStorage();
+  }
+
   ngOnDestroy() {
     this.stopCapture();
   }
@@ -118,7 +122,7 @@ export class AppComponent implements OnDestroy {
     this.countdownIntervalId = setInterval(() => {
       this.countdown.update(c => {
         const newCount = c - 1;
-        if (newCount === 2 && !this.isLoading()) {
+        if (newCount === 3 && !this.isLoading()) {
            this.speak("Analisando fechamento.");
            this.forceScan(); 
         }
@@ -294,6 +298,31 @@ export class AppComponent implements OnDestroy {
   }
   
   // --- History Methods ---
+  private loadHistoryFromStorage(): void {
+    if (typeof localStorage !== 'undefined') {
+      const storedHistory = localStorage.getItem('prismaAiHistory');
+      if (storedHistory) {
+        try {
+          const parsedHistory = JSON.parse(storedHistory);
+          if (Array.isArray(parsedHistory)) {
+             this.history.set(parsedHistory);
+          } else {
+             localStorage.removeItem('prismaAiHistory');
+          }
+        } catch (e) {
+          console.error('Failed to parse history from localStorage', e);
+          localStorage.removeItem('prismaAiHistory');
+        }
+      }
+    }
+  }
+
+  private saveHistoryToStorage(): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('prismaAiHistory', JSON.stringify(this.history()));
+    }
+  }
+
   private addToHistory(analysis: Analysis) {
     if (analysis.signal !== 'COMPRA' && analysis.signal !== 'VENDA') return;
 
@@ -306,30 +335,40 @@ export class AppComponent implements OnDestroy {
     };
 
     this.history.update(current => [newItem, ...current].slice(0, 5));
+    this.saveHistoryToStorage();
   }
 
   markAsWin(id: number) {
     this.history.update(current => 
       current.map(item => item.id === id ? { ...item, result: 'WIN' } : item)
     );
+    this.saveHistoryToStorage();
   }
 
   markAsLoss(id: number) {
     this.history.update(current => 
       current.map(item => item.id === id ? { ...item, result: 'LOSS' } : item)
     );
+    this.saveHistoryToStorage();
+  }
+
+  clearHistory(): void {
+    this.history.set([]);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('prismaAiHistory');
+    }
   }
 
   getSignalClasses(signal: string) {
     switch (signal) {
       case 'COMPRA':
-        return 'bg-green-500/10 text-green-400 border-green-500/30';
+        return 'text-green-400';
       case 'VENDA':
-        return 'bg-red-500/10 text-red-400 border-red-500/30';
+        return 'text-red-400';
       case 'AGUARDAR':
-        return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30';
+        return 'text-yellow-400';
       default:
-        return 'bg-slate-700 text-slate-300 border-slate-600';
+        return 'text-slate-300';
     }
   }
 }

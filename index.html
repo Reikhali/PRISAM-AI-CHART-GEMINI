@@ -6,7 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prisma AI Chart Analyzer</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
+    /* Custom Font */
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
     /* Custom scrollbar for a more modern look */
     ::-webkit-scrollbar {
       width: 8px;
@@ -20,6 +28,40 @@
     }
     ::-webkit-scrollbar-thumb:hover {
       background: #64748b; /* slate-500 */
+    }
+
+    /* Custom CSS for Prisma Glow Effects */
+    .prisma-border-glow {
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.4), 
+                  inset 0 0 5px rgba(168, 85, 247, 0.2);
+      border: 1px solid rgba(168, 85, 247, 0.6);
+    }
+
+    .prisma-text-glow {
+      text-shadow: 0 0 10px rgba(168, 85, 247, 0.8),
+                   0 0 20px rgba(168, 85, 247, 0.4);
+    }
+
+    .prisma-glass {
+      background: rgba(10, 10, 20, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .prisma-scan-line {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(to right, transparent, #a855f7, transparent);
+      position: absolute;
+      top: 0;
+      left: 0;
+      animation: scan 3s linear infinite;
+      z-index: 10;
+    }
+
+    @keyframes scan {
+      0% { top: 0%; }
+      100% { top: 100%; }
     }
   </style>
 <script type="importmap">
@@ -41,7 +83,7 @@
 }
 </script>
 </head>
-<body class="bg-slate-900 text-slate-200 antialiased">
+<body class="bg-[#020205] text-slate-200 antialiased selection:bg-purple-500/30">
   <app-root></app-root>
 </body>
 </html>
