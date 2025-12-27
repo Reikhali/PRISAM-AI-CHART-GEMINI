@@ -1,12 +1,10 @@
 
 <div class="min-h-screen bg-[#020205] text-white p-4 font-sans flex flex-col">
   
-  <!-- This is a simplified header for the new layout -->
   <header class="flex-shrink-0 flex items-center justify-between max-w-[1400px] w-full mx-auto mb-4 px-2">
       <div class="flex items-center gap-3">
         <h1 class="text-xl font-black tracking-widest text-white">PRISMA <span class="text-purple-500 prisma-text-glow">AI</span></h1>
       </div>
-       <!-- Mode Switcher -->
        <div class="flex items-center gap-1 p-1 rounded-lg bg-black/40 border border-purple-500/20">
         <button 
           (click)="setMode('live')"
@@ -25,9 +23,7 @@
 
   <main class="flex-grow max-w-[1400px] w-full mx-auto grid grid-cols-12 gap-6 h-[85vh]">
     
-    <!-- COLUNA ESQUERDA: Market Intelligence & History -->
     <aside class="col-span-12 lg:col-span-3 flex flex-col gap-4">
-        <!-- Market Intelligence -->
         <div class="bg-black/40 border border-purple-500/20 rounded-3xl p-6 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
             <h2 class="text-purple-400 font-bold text-xs mb-6 uppercase tracking-widest">Market Intelligence</h2>
             <div class="space-y-6">
@@ -42,7 +38,6 @@
             </div>
         </div>
 
-        <!-- History Panel -->
         <div class="bg-black/40 border border-purple-500/20 rounded-3xl p-5 flex-1 flex flex-col overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.1)]">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xs font-bold text-purple-400 flex items-center gap-2 uppercase">
@@ -63,9 +58,8 @@
         </div>
     </aside>
 
-    <!-- CENTRO: VISOR DO GRÁFICO (6 colunas) -->
     <main class="col-span-12 lg:col-span-6 relative rounded-3xl border-2 border-purple-500/30 overflow-hidden bg-black shadow-[0_0_40px_rgba(168,85,247,0.2)]">
-        @if(isCapturing()) { <div class="prisma-scan-line"></div> }
+        @if(isCapturing() && isLoading()) { <div class="prisma-scan-line"></div> }
 
         <video #videoElement autoPlay muted playsInline class="w-full h-full object-contain"></video>
         <canvas #canvasElement class="hidden"></canvas>
@@ -115,7 +109,6 @@
         </div>
     </main>
 
-    <!-- COLUNA DIREITA: Comandos -->
     <aside class="col-span-12 lg:col-span-3 flex flex-col gap-4">
       @if (mode() === 'live') {
         <div class="bg-black/40 border border-purple-500/20 rounded-3xl p-6 flex flex-col items-center justify-center h-1/3">
@@ -163,4 +156,3 @@
   </main>
 
 </div>
-    

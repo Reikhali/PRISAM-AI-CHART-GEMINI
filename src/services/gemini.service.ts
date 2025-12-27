@@ -2,55 +2,55 @@
 import { Injectable } from '@angular/core';
 import { GoogleGenAI, GenerateContentResponse } from '@google/genai';
 
-// This is a placeholder for the environment variable.
-// In a real Applet environment, this would be configured securely.
-declare const process: any; 
+declare const process: any;
 
 @Injectable({
   providedIn: 'root',
 })
 export class GeminiService {
   private ai: GoogleGenAI;
+  
   private readonly SYSTEM_PROMPT = `
-Você é o PRISMA IA, um especialista em Price Action e Fluxo de Vela para M1. Sua função é analisar frames de vídeo de gráficos de trading.
-
-Foco Visual: Identifique pavios de rejeição (mínimo 50% da vela) e 'Velas de Descanso' (corpo pequeno após rompimento).
-
-Leitura OCR: Localize o par de moedas e o relógio na imagem.
-
-Protocolo de Voz: Suas respostas devem ser curtas para que o sintetizador de voz fale rápido. Formato de Resposta: 'SINAL: [COMPRA/VENDA/AGUARDAR] no [ATIVO]. MOTIVO: [Exaustão/Pavio/Fluxo]. Confiança: [X]%'
+Você é o PRISMA IA, o motor de elite para Opções Binárias.
+Sua análise é baseada em Price Action Puro (M1).
+REGRAS:
+1. FOCO EM PAVIO: Se a vela atual deixou pavio > 50% em zona de suporte/resistência, sinal de REVERSÃO.
+2. VELA DE DESCANSO: Vela pequena sem pavio contra a tendência = CONTINUIDADE.
+3. RESPOSTA CURTA (VOZ): "SINAL: [COMPRA/VENDA/AGUARDAR] no [ATIVO]. MOTIVO: [Pavio/Fluxo/Exaustão]. Confiança: [X]%"
 `;
 
   constructor() {
-    // IMPORTANT: The API key is sourced from environment variables for security.
-    // Do not hardcode API keys in the application.
     if (typeof process === 'undefined' || !process.env.API_KEY) {
         console.error("API_KEY environment variable not set.");
-        // In a real app, you might want to handle this more gracefully.
     }
     this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   }
 
-  async analyzeChart(base64Image: string): Promise<string> {
-    if (!base64Image) {
-      throw new Error('Image data is required for analysis.');
-    }
+  private speakSignal(text: string) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'pt-BR';
+    utterance.rate = 1.3;
+    utterance.pitch = 1.0;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  private async analyzeFrame(base64Image: string, mimeType: 'image/jpeg' | 'image/png'): Promise<string> {
+    if (!base64Image) throw new Error('Imagem necessária.');
 
     const base64Data = base64Image.split(',')[1];
-    if (!base64Data) {
+     if (!base64Data) {
       throw new Error('Invalid base64 image format.');
     }
 
     const imagePart = {
       inlineData: {
-        mimeType: 'image/png',
+        mimeType: mimeType,
         data: base64Data,
       },
     };
-
-    const textPart = {
-      text: "Analise este frame agora. Verifique a força do pavio e o fluxo. Dê o sinal para a próxima vela.",
-    };
+    
+    const textPart = { text: "Analise agora. Próxima vela: COMPRA ou VENDA?" };
 
     try {
       const response: GenerateContentResponse = await this.ai.models.generateContent({
@@ -58,50 +58,25 @@ Protocolo de Voz: Suas respostas devem ser curtas para que o sintetizador de voz
         contents: { parts: [textPart, imagePart] },
         config: {
           systemInstruction: this.SYSTEM_PROMPT,
-          temperature: 0.2, 
         },
       });
-      return response.text;
+
+      const responseText = response.text;
+      
+      this.speakSignal(responseText);
+
+      return responseText;
     } catch (error) {
-      console.error('Error calling Gemini API:', error);
-      throw new Error('Failed to get analysis from AI. Please check the console for details.');
+      console.error('Erro Prisma API:', error);
+      throw new Error('Falha na análise Prisma.');
     }
   }
 
-  async analyzeLiveFrame(base64Image: string): Promise<string> {
-    if (!base64Image) {
-      throw new Error('Image data is required for analysis.');
-    }
-    
-    const base64Data = base64Image.split(',')[1];
-    if (!base64Data) {
-      throw new Error('Invalid base64 image format.');
-    }
+  analyzeLiveFrame(base64Image: string): Promise<string> {
+      return this.analyzeFrame(base64Image, 'image/jpeg');
+  }
 
-    const imagePart = {
-      inlineData: {
-        mimeType: 'image/jpeg',
-        data: base64Data,
-      },
-    };
-
-    const textPart = {
-      text: "Analise este frame agora. Verifique a força do pavio e o fluxo. Dê o sinal para a próxima vela."
-    };
-
-    try {
-      const response: GenerateContentResponse = await this.ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: { parts: [textPart, imagePart] },
-        config: {
-          systemInstruction: this.SYSTEM_PROMPT,
-          temperature: 0.1,
-        },
-      });
-      return response.text;
-    } catch (error) {
-      console.error('Error calling Gemini API for live frame:', error);
-      throw new Error('Failed to get live analysis from AI.');
-    }
+  analyzeChart(base64Image: string): Promise<string> {
+      return this.analyzeFrame(base64Image, 'image/png');
   }
 }

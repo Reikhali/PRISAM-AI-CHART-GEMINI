@@ -15,40 +15,30 @@ export interface Analysis {
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: [], // No separate styles file, using Tailwind in HTML
-  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [CommonModule, HistoryPanelComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnDestroy {
   private geminiService = inject(GeminiService);
 
-  // Common state
   analysisResult = signal<Analysis | null>(null);
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
-
-  // Mode selection
-  mode = signal<'upload' | 'live'>('live'); // Default to live mode
-
-  // Upload mode state
+  mode = signal<'upload' | 'live'>('live');
   uploadedImage = signal<string | null>(null);
   isDragging = signal<boolean>(false);
-
-  // Live mode state
   isCapturing = signal(false);
   isSynced = signal(false);
   countdown = signal(60);
-  private videoStream: MediaStream | null = null;
-  private countdownIntervalId: any = null;
-  
-  // History state
   history = signal<HistoryItem[]>([]);
 
-  // Element Refs
+  private videoStream: MediaStream | null = null;
+  private countdownIntervalId: any = null;
+
   videoElement = viewChild<ElementRef<HTMLVideoElement>>('videoElement');
   canvasElement = viewChild<ElementRef<HTMLCanvasElement>>('canvasElement');
-  
+
   constructor() {
     this.loadHistoryFromStorage();
   }
@@ -56,77 +46,63 @@ export class AppComponent implements OnDestroy {
   ngOnDestroy() {
     this.stopCapture();
   }
-  
+
   setMode(newMode: 'upload' | 'live') {
     if (this.mode() === newMode) return;
-    this.stopCapture(); // Stop any live processes before switching
+    this.stopCapture();
     this.mode.set(newMode);
   }
 
-  // --- Live Analysis Methods ---
-
   async connectToChart() {
-    this.error.set(null);
     try {
-      if (this.videoStream) {
-        this.stopVideoStream();
-      }
-      this.videoStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      this.videoStream = await navigator.mediaDevices.getDisplayMedia({ 
+        video: { frameRate: 30 } 
+      });
       const video = this.videoElement()?.nativeElement;
       if (video) {
         video.srcObject = this.videoStream;
         await video.play();
+        this.isCapturing.set(true);
+        this.speak("Sensor Prisma Conectado.");
       }
-      this.isCapturing.set(true);
-      this.speak("Sensor Visual Prisma Conectado. Sincronize o timer.");
-    } catch (err: any) {
-      this.error.set('Não foi possível capturar a tela. Verifique as permissões do navegador.');
-      this.mode.set('upload');
+    } catch (err) {
+      this.error.set("Permissão de tela negada.");
     }
   }
 
-  private stopVideoStream() {
-    this.videoStream?.getTracks().forEach(track => track.stop());
-    this.videoStream = null;
-    const video = this.videoElement()?.nativeElement;
-    if(video) video.srcObject = null;
-  }
-
   stopCapture() {
-    this.stopVideoStream();
+    this.videoStream?.getTracks().forEach(t => t.stop());
     this.isCapturing.set(false);
     this.isSynced.set(false);
     this.countdown.set(60);
     this.analysisResult.set(null);
-    this.error.set(null);
     if (this.countdownIntervalId) {
-      clearInterval(this.countdownIntervalId);
-      this.countdownIntervalId = null;
+        clearInterval(this.countdownIntervalId);
+        this.countdownIntervalId = null;
     }
   }
 
   disconnect() {
     this.stopCapture();
-    this.speak("Sistema desconectado.");
+    this.speak("Desconectado.");
   }
-  
+
   syncTimer() {
     this.isSynced.set(true);
     this.countdown.set(60);
-    this.speak("Timer sincronizado.");
+    this.speak("Timer sincronizado. Prisma monitorando.");
 
-    if (this.countdownIntervalId) {
-      clearInterval(this.countdownIntervalId);
-    }
+    if (this.countdownIntervalId) clearInterval(this.countdownIntervalId);
 
     this.countdownIntervalId = setInterval(() => {
       this.countdown.update(c => {
-        const newCount = c - 1;
-        if (newCount === 3 && !this.isLoading()) {
-           this.speak("Analisando fechamento.");
-           this.forceScan(); 
+        const nextVal = c - 1;
+        
+        if (nextVal === 57 && !this.isLoading()) {
+          this.forceScan();
         }
-        return newCount > 0 ? newCount : 60; // Reset for next minute
+
+        return nextVal > 0 ? nextVal : 60;
       });
     }, 1000);
   }
@@ -134,6 +110,7 @@ export class AppComponent implements OnDestroy {
   async forceScan() {
     const video = this.videoElement()?.nativeElement;
     const canvas = this.canvasElement()?.nativeElement;
+
     if (!video || !canvas || video.readyState < 2 || this.isLoading()) return;
 
     this.isLoading.set(true);
@@ -142,29 +119,29 @@ export class AppComponent implements OnDestroy {
     canvas.height = 720;
     const ctx = canvas.getContext('2d');
     if (!ctx) {
-      this.isLoading.set(false);
-      return;
-    }
+        this.isLoading.set(false);
+        return;
+    };
+
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const imageDataUrl = canvas.toDataURL('image/jpeg', 0.7);
 
     try {
       const resultText = await this.geminiService.analyzeLiveFrame(imageDataUrl);
-      this.speak(resultText); // Speak the raw, voice-optimized response
       const parsedResult = this.parsePrismaResponse(resultText);
       this.analysisResult.set(parsedResult);
-      if (parsedResult.signal === 'COMPRA' || parsedResult.signal === 'VENDA') {
+
+      if (parsedResult.signal !== 'AGUARDAR' && parsedResult.signal !== 'ERRO') {
         this.addToHistory(parsedResult);
       }
     } catch (e: any) {
-      this.error.set(e.message || 'Ocorreu um erro na análise ao vivo.');
+      console.error("Erro Prisma Scan:", e);
+      this.error.set("Falha na comunicação neural.");
     } finally {
       this.isLoading.set(false);
     }
   }
-
-  // --- Image Upload Methods ---
-
+  
   onDragOver(event: DragEvent) {
     event.preventDefault();
     this.isDragging.set(true);
@@ -222,7 +199,6 @@ export class AppComponent implements OnDestroy {
 
     try {
       const resultText = await this.geminiService.analyzeChart(image);
-      this.speak(resultText);
       const parsedResult = this.parsePrismaResponse(resultText);
       this.analysisResult.set(parsedResult);
       if (parsedResult.signal === 'COMPRA' || parsedResult.signal === 'VENDA') {
@@ -236,52 +212,35 @@ export class AppComponent implements OnDestroy {
   }
 
   private parsePrismaResponse(text: string): Analysis {
-    const signalMatch = text.match(/SINAL:\s*(\w+)/i);
-    const assetMatch = text.match(/no\s+([A-Z\/]+)/i);
-    const reasonMatch = text.match(/MOTIVO:\s*([^.]+)/i);
+    const signalMatch = text.match(/SINAL:\s*(COMPRA|VENDA|AGUARDAR)/i);
+    const assetMatch = text.match(/no\s+([A-Z\/0-9]+)/i) || text.match(/ATIVO:\s*([A-Z\/0-9]+)/i);
+    const reasonMatch = text.match(/MOTIVO:\s*([^|.]+)/i);
     const confidenceMatch = text.match(/Confiança:\s*(\d+%)/i);
 
-    const signal = (signalMatch?.[1]?.toUpperCase() || 'ERRO') as 'COMPRA' | 'VENDA' | 'AGUARDAR' | 'ERRO';
-    const asset = assetMatch?.[1] || '---';
-    const reason = reasonMatch?.[1]?.trim() || 'Análise Inconclusiva';
-    const assertividade = confidenceMatch?.[1] || '--%';
-
     return {
-      signal: signal,
+      signal: (signalMatch?.[1]?.toUpperCase() || 'AGUARDAR') as any,
       time: new Date().toLocaleTimeString('pt-BR'),
-      reason: reason,
-      asset: asset,
-      assertividade: assertividade
+      reason: reasonMatch?.[1]?.trim() || 'Análise de fluxo',
+      asset: assetMatch?.[1] || 'Detectando...',
+      assertividade: confidenceMatch?.[1] || '---'
     };
   }
-  
-  private speak(text: string): void {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'pt-BR';
-      utterance.rate = 1.2;
-      utterance.pitch = 1.0;
-      window.speechSynthesis.speak(utterance);
-    } else {
-      console.warn('Text-to-speech não é suportado neste navegador.');
-    }
+
+  private speak(text: string) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'pt-BR';
+    utterance.rate = 1.2;
+    window.speechSynthesis.speak(utterance);
   }
-  
-  // --- History Methods ---
+
   private loadHistoryFromStorage(): void {
     if (typeof localStorage !== 'undefined') {
       const storedHistory = localStorage.getItem('prismaAiHistory');
       if (storedHistory) {
         try {
-          const parsedHistory = JSON.parse(storedHistory);
-          if (Array.isArray(parsedHistory)) {
-             this.history.set(parsedHistory);
-          } else {
-             localStorage.removeItem('prismaAiHistory');
-          }
+          this.history.set(JSON.parse(storedHistory));
         } catch (e) {
-          console.error('Failed to parse history from localStorage', e);
           localStorage.removeItem('prismaAiHistory');
         }
       }
@@ -296,7 +255,6 @@ export class AppComponent implements OnDestroy {
 
   private addToHistory(analysis: Analysis) {
     if (analysis.signal !== 'COMPRA' && analysis.signal !== 'VENDA') return;
-
     const newItem: HistoryItem = {
       id: Date.now(),
       time: analysis.time,
@@ -304,8 +262,7 @@ export class AppComponent implements OnDestroy {
       direction: analysis.signal,
       result: 'PENDENTE'
     };
-
-    this.history.update(current => [newItem, ...current].slice(0, 5));
+    this.history.update(current => [newItem, ...current].slice(0, 20));
     this.saveHistoryToStorage();
   }
 
@@ -329,17 +286,10 @@ export class AppComponent implements OnDestroy {
       localStorage.removeItem('prismaAiHistory');
     }
   }
-
+  
   getSignalClasses(signal: string) {
-    switch (signal) {
-      case 'COMPRA':
-        return 'text-green-400';
-      case 'VENDA':
-        return 'text-red-400';
-      case 'AGUARDAR':
-        return 'text-yellow-400';
-      default:
-        return 'text-slate-300';
-    }
+    if (signal === 'COMPRA') return 'text-green-400';
+    if (signal === 'VENDA') return 'text-red-400';
+    return 'text-yellow-400';
   }
 }
