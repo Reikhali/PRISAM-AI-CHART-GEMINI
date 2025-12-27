@@ -1,8 +1,9 @@
 
-import { ChangeDetectionStrategy, Component, inject, signal, ElementRef, viewChild, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, ElementRef, viewChild, OnDestroy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GeminiService } from './services/gemini.service';
 import { HistoryPanelComponent, HistoryItem } from './history-panel.component';
+import { LoginComponent } from './login.component';
 
 export interface Analysis {
   signal: 'COMPRA' | 'VENDA' | 'AGUARDAR' | 'ERRO';
@@ -16,7 +17,7 @@ export interface Analysis {
   selector: 'app-root',
   templateUrl: './app.component.html',
   standalone: true,
-  imports: [CommonModule, HistoryPanelComponent],
+  imports: [CommonModule, HistoryPanelComponent, LoginComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnDestroy {
@@ -32,6 +33,7 @@ export class AppComponent implements OnDestroy {
   isSynced = signal(false);
   countdown = signal(60);
   history = signal<HistoryItem[]>([]);
+  isAuthenticated = signal(false);
 
   private videoStream: MediaStream | null = null;
   private countdownIntervalId: any = null;
@@ -39,12 +41,37 @@ export class AppComponent implements OnDestroy {
   videoElement = viewChild<ElementRef<HTMLVideoElement>>('videoElement');
   canvasElement = viewChild<ElementRef<HTMLCanvasElement>>('canvasElement');
 
+  confidenceValue = computed(() => {
+    const confidence = this.analysisResult()?.assertividade;
+    if (!confidence) return 0;
+    const numericValue = parseFloat(confidence.replace('%', ''));
+    return isNaN(numericValue) ? 0 : numericValue;
+  });
+
   constructor() {
     this.loadHistoryFromStorage();
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('prisma-auth') === 'true') {
+      this.isAuthenticated.set(true);
+    }
   }
 
   ngOnDestroy() {
     this.stopCapture();
+  }
+
+  handleLoginSuccess() {
+    this.isAuthenticated.set(true);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('prisma-auth', 'true');
+    }
+  }
+
+  logout() {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('prisma-auth');
+    }
+    this.isAuthenticated.set(false);
+    this.disconnect();
   }
 
   setMode(newMode: 'upload' | 'live') {
@@ -72,6 +99,7 @@ export class AppComponent implements OnDestroy {
 
   stopCapture() {
     this.videoStream?.getTracks().forEach(t => t.stop());
+    this.videoStream = null;
     this.isCapturing.set(false);
     this.isSynced.set(false);
     this.countdown.set(60);
@@ -114,6 +142,7 @@ export class AppComponent implements OnDestroy {
     if (!video || !canvas || video.readyState < 2 || this.isLoading()) return;
 
     this.isLoading.set(true);
+    this.analysisResult.set(null);
     
     canvas.width = 1280;
     canvas.height = 720;
@@ -268,14 +297,14 @@ export class AppComponent implements OnDestroy {
 
   markAsWin(id: number) {
     this.history.update(current => 
-      current.map(item => item.id === id ? { ...item, result: 'WIN' } : item)
+      current.map(item => item.id === id ? { ...item, result: 'VITÓRIA' } : item)
     );
     this.saveHistoryToStorage();
   }
 
   markAsLoss(id: number) {
     this.history.update(current => 
-      current.map(item => item.id === id ? { ...item, result: 'LOSS' } : item)
+      current.map(item => item.id === id ? { ...item, result: 'DERROTA' } : item)
     );
     this.saveHistoryToStorage();
   }

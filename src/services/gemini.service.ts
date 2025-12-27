@@ -40,7 +40,7 @@ REGRAS:
 
     const base64Data = base64Image.split(',')[1];
      if (!base64Data) {
-      throw new Error('Invalid base64 image format.');
+      throw new Error('Formato de imagem base64 inválido.');
     }
 
     const imagePart = {

@@ -5,49 +5,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prisma AI Chart Analyzer</title>
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/d1g9fJks/prisma-ia-vortex-icon.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   <style>
-    /* Custom Font */
     body {
-      font-family: 'Inter', sans-serif;
+        background-color: #02010a;
+        background-image: 
+            radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 85% 30%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.2) 0%, transparent 60%);
+        background-attachment: fixed;
     }
-
-    /* Custom scrollbar for a more modern look */
+    .glass-panel {
+        background: rgba(15, 15, 20, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
     ::-webkit-scrollbar {
-      width: 8px;
+        width: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #1e293b; /* slate-800 */
+        background: transparent; 
     }
     ::-webkit-scrollbar-thumb {
-      background: #475569; /* slate-600 */
-      border-radius: 4px;
+        background: #3f3f46; 
+        border-radius: 3px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #64748b; /* slate-500 */
+        background: #71717a; 
     }
-
-    /* Custom CSS for Prisma Glow Effects */
-    .prisma-border-glow {
-      box-shadow: 0 0 15px rgba(168, 85, 247, 0.4), 
-                  inset 0 0 5px rgba(168, 85, 247, 0.2);
-      border: 1px solid rgba(168, 85, 247, 0.6);
-    }
-
-    .prisma-text-glow {
-      text-shadow: 0 0 10px rgba(168, 85, 247, 0.8),
-                   0 0 20px rgba(168, 85, 247, 0.4);
-    }
-
-    .prisma-glass {
-      background: rgba(10, 10, 20, 0.6);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-
+    
     .prisma-scan-line {
       width: 100%;
       height: 2px;
@@ -55,8 +48,9 @@
       position: absolute;
       top: 0;
       left: 0;
-      animation: scan 3s linear infinite;
+      animation: scan 3s linear infinite alternate;
       z-index: 10;
+      box-shadow: 0 0 10px #a855f7;
     }
 
     @keyframes scan {
@@ -83,8 +77,52 @@
   }
 }
 </script>
+<script>
+    tailwind.config = {
+    darkMode: "class",
+    theme: {
+        extend: {
+        colors: {
+            primary: "#a855f7",
+            "primary-hover": "#9333ea",
+            "primary-glow": "#d8b4fe",
+            "background-deep": "#02010a",
+        },
+        fontFamily: {
+            sans: ["Poppins", "sans-serif"],
+            display: ["Quicksand", "sans-serif"],
+        },
+        borderRadius: {
+            DEFAULT: "0.5rem",
+            'xl': '1rem',
+            '2xl': '1.25rem',
+            '3xl': '1.5rem',
+        },
+        boxShadow: {
+            'glow': '0 0 20px rgba(168, 85, 247, 0.3)',
+            'glow-lg': '0 0 30px rgba(168, 85, 247, 0.4)',
+            'glow-text': '0 0 10px rgba(168, 85, 247, 0.5)',
+        },
+        animation: {
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 6s ease-in-out infinite',
+        },
+        keyframes: {
+            float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
+            },
+        }
+        },
+    },
+    };
+</script>
 </head>
-<body class="bg-[#020205] text-slate-200 antialiased selection:bg-purple-500/30">
+<body class="text-gray-200 font-sans min-h-screen flex flex-col overflow-hidden">
+  <div class="fixed inset-0 z-0 pointer-events-none">
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-900/20 rounded-full blur-[100px] animate-pulse-slow"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-900/20 rounded-full blur-[100px] animate-pulse-slow" style="animation-delay: 2s;"></div>
+  </div>
   <app-root></app-root>
 </body>
 </html>

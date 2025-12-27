@@ -1,158 +1,238 @@
 
-<div class="min-h-screen bg-[#020205] text-white p-4 font-sans flex flex-col">
-  
-  <header class="flex-shrink-0 flex items-center justify-between max-w-[1400px] w-full mx-auto mb-4 px-2">
-      <div class="flex items-center gap-3">
-        <h1 class="text-xl font-black tracking-widest text-white">PRISMA <span class="text-purple-500 prisma-text-glow">AI</span></h1>
+@if (isAuthenticated()) {
+<div class="relative z-10 flex flex-col min-h-screen">
+  <!-- Header -->
+  <header class="w-full px-8 py-5 flex items-center justify-between z-20">
+    <div class="flex items-center gap-4 group cursor-default">
+      <div class="relative w-10 h-10 flex items-center justify-center">
+        <div class="absolute inset-0 bg-primary/30 rounded-full blur-md group-hover:blur-lg transition-all duration-500"></div>
+        <div class="relative w-full h-full rounded-full border border-primary/50 bg-black/40 flex items-center justify-center overflow-hidden">
+          <div class="w-full h-full bg-gradient-to-tr from-primary/20 to-transparent"></div>
+          <div class="absolute inset-0 animate-[spin_4s_linear_infinite] border-t border-primary/60 rounded-full"></div>
+        </div>
       </div>
-       <div class="flex items-center gap-1 p-1 rounded-lg bg-black/40 border border-purple-500/20">
-        <button 
-          (click)="setMode('live')"
-          class="px-3 py-1 text-xs font-bold rounded-md transition-colors"
-          [class]="mode() === 'live' ? 'bg-purple-600/50 text-purple-300' : 'text-gray-400 hover:bg-white/5'">
-          LIVE
+      <div class="flex flex-col">
+        <h1 class="text-2xl font-display font-bold text-white tracking-widest shadow-glow-text leading-none">
+          PRISMA<span class="text-primary font-light">IA</span>
+        </h1>
+        <span class="text-[9px] text-primary/80 tracking-[0.2em] font-display uppercase ml-0.5 mt-1 font-semibold">Plataforma de Inteligência</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-6">
+      <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full p-1.5 backdrop-blur-md">
+        <button (click)="setMode('live')" [class]="mode() === 'live' ? 'bg-primary text-black shadow-glow' : 'text-gray-400'" class="px-5 py-1.5 rounded-full text-[10px] font-bold hover:text-white transition-all duration-300 flex items-center gap-2">
+          @if(mode() === 'live') {<span class="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_5px_#22c55e]"></span>}
+          AO VIVO
         </button>
-        <button 
-          (click)="setMode('upload')"
-          class="px-3 py-1 text-xs font-bold rounded-md transition-colors"
-          [class]="mode() === 'upload' ? 'bg-purple-600/50 text-purple-300' : 'text-gray-400 hover:bg-white/5'">
-          UPLOAD
+        <button (click)="setMode('upload')" [class]="mode() === 'upload' ? 'bg-primary text-black shadow-glow' : 'text-gray-400'" class="px-5 py-1.5 rounded-full text-[10px] font-bold hover:text-white transition-all duration-300 flex items-center gap-2">
+          @if(mode() !== 'live') {<span class="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_5px_#22c55e]"></span>}
+          ENVIAR DADOS
         </button>
       </div>
+      <button (click)="logout()" title="Sair" class="w-10 h-10 flex items-center justify-center bg-red-500/10 text-red-400 rounded-full hover:bg-red-500/20 hover:text-red-300 transition-all duration-300 border border-red-500/20">
+        <span class="material-icons-round text-xl">logout</span>
+      </button>
+    </div>
   </header>
 
-  <main class="flex-grow max-w-[1400px] w-full mx-auto grid grid-cols-12 gap-6 h-[85vh]">
+  <!-- Main Grid -->
+  <main class="flex-1 px-8 pb-8 pt-2 grid grid-cols-1 lg:grid-cols-12 gap-6 w-full max-w-[2000px] mx-auto">
     
-    <aside class="col-span-12 lg:col-span-3 flex flex-col gap-4">
-        <div class="bg-black/40 border border-purple-500/20 rounded-3xl p-6 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
-            <h2 class="text-purple-400 font-bold text-xs mb-6 uppercase tracking-widest">Market Intelligence</h2>
-            <div class="space-y-6">
-                <div>
-                    <p class="text-[10px] text-gray-500 uppercase">Ativo Lido</p>
-                    <p class="text-xl font-black text-white truncate">{{ analysisResult()?.asset || '---' }}</p>
-                </div>
-                <div class="p-4 bg-purple-600/10 rounded-2xl border border-purple-500/20">
-                    <p class="text-[10px] text-purple-300 uppercase">Confidence Score</p>
-                    <p class="text-2xl font-black text-purple-500">{{ analysisResult()?.assertividade || '--%' }}</p>
-                </div>
-            </div>
+    <!-- Left Panel -->
+    <aside class="lg:col-span-3 flex flex-col gap-6 h-full">
+      <div class="glass-panel rounded-2xl p-6 shadow-glass hover:border-primary/30 transition-colors duration-300 group">
+        <div class="flex items-center justify-between mb-8">
+          <div class="flex items-center gap-2">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            <h2 class="text-[10px] font-bold tracking-widest text-primary/80 uppercase font-display">STATUS DO SISTEMA</h2>
+          </div>
+          <span class="material-icons-round text-white/20 text-sm group-hover:text-primary/50 transition-colors">tune</span>
         </div>
-
-        <div class="bg-black/40 border border-purple-500/20 rounded-3xl p-5 flex-1 flex flex-col overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.1)]">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xs font-bold text-purple-400 flex items-center gap-2 uppercase">
-                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                    Sinais Recentes
-                </h3>
-                @if(history().length > 0) {
-                    <button (click)="clearHistory()" class="text-gray-500 hover:text-red-400 text-[10px] uppercase font-bold transition-colors">Limpar</button>
-                }
+        <div class="space-y-6">
+          <div>
+            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 font-display">ATIVO ATUAL</p>
+            <div class="h-12 bg-white/5 rounded-xl flex items-center px-4">
+               <p class="font-bold text-white text-lg font-display">{{ analysisResult()?.asset || '---' }}</p>
             </div>
-            <div class="flex-1 overflow-y-auto -mr-2 pr-2">
-                <app-history-panel 
-                    [history]="history()"
-                    (markWin)="markAsWin($event)"
-                    (markLoss)="markAsLoss($event)"
-                />
+          </div>
+          <div class="relative p-5 rounded-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 overflow-hidden">
+            <div class="absolute right-0 top-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 font-display">NÍVEL DE CONFIANÇA</p>
+            <div class="flex items-end gap-2">
+              <span class="text-4xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-white">{{ confidenceValue() || '--' }}</span>
+              <span class="text-sm font-display text-gray-500 mb-1.5">%</span>
             </div>
+            <div class="w-full bg-gray-800/50 h-1.5 rounded-full mt-3 overflow-hidden">
+              <div class="h-full bg-primary rounded-full transition-all duration-1000" [style.width.%]="confidenceValue()"></div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="flex-1 glass-panel rounded-2xl p-6 shadow-glass hover:border-primary/30 transition-colors duration-300 flex flex-col min-h-[250px] relative overflow-hidden">
+        <div class="flex items-center gap-2 mb-4 z-10">
+          <span class="material-icons-round text-primary text-sm">radar</span>
+          <h2 class="text-[10px] font-bold tracking-widest text-primary/80 uppercase font-display">HISTÓRICO DE SINAIS</h2>
+        </div>
+        <div class="flex-1 overflow-y-auto -mr-2 pr-2">
+          <app-history-panel [history]="history()" (markWin)="markAsWin($event)" (markLoss)="markAsLoss($event)" />
+        </div>
+      </div>
     </aside>
 
-    <main class="col-span-12 lg:col-span-6 relative rounded-3xl border-2 border-purple-500/30 overflow-hidden bg-black shadow-[0_0_40px_rgba(168,85,247,0.2)]">
-        @if(isCapturing() && isLoading()) { <div class="prisma-scan-line"></div> }
+    <!-- Center Panel -->
+    <main class="lg:col-span-6 flex flex-col h-full min-h-[500px]">
+      <div class="relative w-full h-full glass-panel rounded-2xl p-1.5 shadow-glass flex flex-col overflow-hidden group">
+        <div class="flex-1 bg-black/80 rounded-xl relative overflow-hidden flex items-center justify-center">
+          <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(rgba(168, 85, 247, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(168, 85, 247, 0.1) 1px, transparent 1px); background-size: 40px 40px;"></div>
+          <div class="absolute inset-0 bg-radial-gradient from-transparent to-black/90"></div>
+          
+          @if(isLoading()) { <div class="prisma-scan-line"></div> }
+          
+          <video #videoElement autoPlay muted playsInline class="w-full h-full object-cover"></video>
+          <canvas #canvasElement class="hidden"></canvas>
 
-        <video #videoElement autoPlay muted playsInline class="w-full h-full object-contain"></video>
-        <canvas #canvasElement class="hidden"></canvas>
+           @if (mode() === 'live' && !isCapturing()) {
+              <div class="absolute inset-0 z-10 text-center flex flex-col items-center justify-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 mb-4 rounded-full border border-primary/30 bg-primary/5 relative">
+                  <span class="material-icons-round text-primary text-3xl opacity-50">sensors_off</span>
+                  <div class="absolute inset-0 border border-primary/20 rounded-full animate-ping opacity-20"></div>
+                </div>
+                <p class="text-lg font-display font-bold text-white tracking-wide">SENSOR DESCONECTADO</p>
+                <p class="text-xs text-gray-500 mt-2 font-sans font-medium">Conexão de stream necessária para visualizar os dados</p>
+              </div>
+            }
 
-        @if (!isCapturing() && mode() === 'live') {
-          <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-             <p class="mt-4 text-purple-400/50">Sensor Desconectado</p>
-          </div>
-        }
-
-        @if (mode() === 'upload') {
+          @if (mode() === 'upload') {
             @if (uploadedImage()) {
-                <img [src]="uploadedImage()" alt="Chart preview" class="absolute inset-0 rounded-3xl w-full h-full object-contain">
+                <img [src]="uploadedImage()" alt="Chart preview" class="absolute inset-0 w-full h-full object-contain">
             } @else {
-                <div 
-                    (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
-                    class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 border-2 border-dashed rounded-3xl transition-colors"
-                    [class.border-purple-500]="isDragging()" [class.border-transparent]="!isDragging()">
-                    <p class="text-sm text-slate-400">Arraste uma imagem aqui ou 
-                        <label for="file-upload" class="cursor-pointer font-semibold text-purple-400 hover:text-purple-300">
-                        selecione
+                 <div (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
+                    class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 border-2 border-dashed rounded-xl transition-colors"
+                    [class.border-primary/50]="isDragging()" [class.border-transparent]="!isDragging()">
+                    <p class="text-sm text-slate-400 font-display">Arraste e solte a imagem ou 
+                        <label for="file-upload" class="cursor-pointer font-bold text-primary hover:text-primary-glow">
+                        Selecione o Arquivo
                         <input id="file-upload" type="file" class="sr-only" (change)="onFileSelected($event)" accept="image/*">
                         </label>
                     </p>
                 </div>
             }
-        }
-        
-        <div class="absolute bottom-6 left-6 right-6 flex items-center justify-between">
-            <div class="bg-black/80 backdrop-blur-xl border border-purple-500/40 p-3 rounded-2xl">
-                 @if (isLoading()) {
-                    <p class="text-xs text-purple-400 font-bold animate-pulse">ANALISANDO...</p>
-                 } @else if (isCapturing()) {
-                    <p class="text-xs text-purple-400 font-bold">PRISMA IA MONITORING...</p>
-                 } @else if (analysisResult(); as result) {
-                    <p class="text-xs text-white font-bold">{{result.reason}}</p>
-                 } @else {
-                    <p class="text-xs text-gray-500 font-bold">PRISMA IA INATIVO</p>
-                 }
-            </div>
+          }
 
-            @if (analysisResult(); as result) {
-                <div class="text-right bg-black/80 backdrop-blur-xl border border-purple-500/40 py-2 px-4 rounded-2xl">
-                    <span class="text-xl font-black italic" [class]="getSignalClasses(result.signal)">{{ result.signal }}</span>
+          <div class="absolute top-6 left-6 flex items-center gap-2">
+            <div class="w-24 h-[1px] bg-gradient-to-r from-primary/50 to-transparent"></div>
+            <span class="text-[9px] font-display text-primary/70 font-bold">SISTEMA PRONTO</span>
+          </div>
+          <div class="absolute bottom-6 right-6 flex items-center gap-2">
+            <span class="text-[9px] font-display text-primary/70 font-bold">SEM ENTRADA</span>
+            <div class="w-24 h-[1px] bg-gradient-to-l from-primary/50 to-transparent"></div>
+          </div>
+          @if(mode() === 'live' && !isCapturing()) {
+            <div class="absolute bottom-6 left-6 z-10">
+                <div class="flex items-center gap-3 px-4 py-2 rounded-xl border border-red-500/20 bg-red-500/5 backdrop-blur-md">
+                <span class="relative flex h-2 w-2">
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                </span>
+                <span class="text-[10px] font-bold text-red-400 tracking-wider">DESCONECTADO</span>
+                </div>
+            </div>
+          }
+          <div class="absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-primary/20 rounded-tl-xl"></div>
+          <div class="absolute top-0 right-0 w-16 h-16 border-r-2 border-t-2 border-primary/20 rounded-tr-xl"></div>
+          <div class="absolute bottom-0 left-0 w-16 h-16 border-l-2 border-b-2 border-primary/20 rounded-bl-xl"></div>
+          <div class="absolute bottom-0 right-0 w-16 h-16 border-r-2 border-b-2 border-primary/20 rounded-br-xl"></div>
+        </div>
+      </div>
+    </main>
+    
+    <!-- Right Panel -->
+    <aside class="lg:col-span-3 flex flex-col gap-6 h-full">
+      <div class="glass-panel rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-glass relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 border border-white/5 rounded-full border-dashed animate-[spin_20s_linear_infinite]"></div>
+        <h3 class="text-6xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 mb-2 z-10 shadow-glow-text">
+          {{ countdown() | number:'2.0-0' }}
+        </h3>
+        <div class="flex flex-col items-center gap-1 z-10">
+          <p class="text-[10px] font-bold tracking-[0.3em] text-primary uppercase font-display">SINCRONIZAÇÃO</p>
+          <span class="text-[9px] text-gray-500 font-display font-semibold">PRÓXIMA VELA</span>
+        </div>
+      </div>
+
+       <div class="flex-1 relative w-full rounded-2xl min-h-[300px]">
+          @if (mode() === 'live') {
+            @if (!isCapturing()) {
+              <button (click)="connectToChart()" class="group h-full w-full rounded-2xl overflow-hidden focus:outline-none transition-all shadow-glow border border-primary/30">
+                <div class="absolute inset-0 bg-background-deep"></div>
+                <div class="absolute inset-0 bg-primary/10 group-hover:bg-primary/20 transition-colors duration-500"></div>
+                <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-primary/30 to-transparent opacity-0 group-hover:opacity-100 translate-y-full group-hover:translate-y-[-100%] transition-all duration-1000 transform skew-y-12"></div>
+                <div class="absolute inset-0 flex items-center justify-center opacity-40">
+                  <div class="absolute w-[200px] h-[200px] border border-primary/30 rounded-full animate-[spin_8s_linear_infinite]"></div>
+                  <div class="absolute w-[160px] h-[160px] border border-primary/20 rounded-full animate-[spin_12s_linear_infinite_reverse] border-dashed"></div>
+                </div>
+                <div class="relative h-full flex flex-col items-center justify-center z-10 p-6">
+                  <div class="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-purple-900 shadow-glow-lg flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-[0_0_40px_rgba(168,85,247,0.6)] transition-all duration-300 border border-white/20">
+                    <span class="material-icons-round text-white text-4xl">power_settings_new</span>
+                  </div>
+                  <span class="text-xl font-display font-bold text-white tracking-widest group-hover:text-primary-glow transition-colors">CONECTAR</span>
+                  <span class="text-[10px] text-gray-400 mt-2 tracking-wider font-semibold">INICIALIZAR SENSOR</span>
+                </div>
+              </button>
+            } @else {
+                <div class="glass-panel rounded-2xl p-6 h-full flex flex-col justify-center gap-4">
+                     <button (click)="syncTimer()" [disabled]="isSynced()" class="w-full text-center py-4 bg-primary/20 border border-primary/30 text-primary font-bold rounded-lg hover:bg-primary/30 disabled:opacity-40 disabled:hover:bg-primary/20 transition-all font-display">
+                        {{ isSynced() ? 'SINCRONIZADO' : 'SINCRONIZAR TEMPO' }}
+                    </button>
+                    <button (click)="forceScan()" [disabled]="isLoading()" class="w-full text-center py-4 bg-primary text-black font-bold rounded-lg hover:bg-primary-glow disabled:opacity-40 transition-all font-display shadow-glow">
+                        {{ isLoading() ? "ANALISANDO..." : "FORÇAR ANÁLISE" }}
+                    </button>
+                    <button (click)="disconnect()" class="w-full text-center py-3 mt-4 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-all font-display text-xs">
+                        DESCONECTAR
+                    </button>
                 </div>
             }
-        </div>
-    </main>
-
-    <aside class="col-span-12 lg:col-span-3 flex flex-col gap-4">
-      @if (mode() === 'live') {
-        <div class="bg-black/40 border border-purple-500/20 rounded-3xl p-6 flex flex-col items-center justify-center h-1/3">
-            <span class="text-5xl font-black text-white font-mono tracking-tighter">{{ countdown() | number:'2.0-0' }}</span>
-            <span class="text-[10px] text-purple-400 uppercase font-bold mt-2">Next Candle Sync</span>
-        </div>
-        
-        @if (!isCapturing()) {
-            <button (click)="connectToChart()" class="h-full bg-purple-600 hover:bg-purple-500 rounded-3xl font-black text-lg transition-all shadow-[0_0_25px_rgba(168,85,247,0.5)] active:scale-95">
-                CONNECT SENSOR
-            </button>
         } @else {
-            <div class="h-2/3 flex flex-col gap-3">
-                <button (click)="syncTimer()" [disabled]="isSynced()" class="flex-1 w-full bg-black/40 border border-green-500/50 text-green-400 font-bold rounded-3xl hover:bg-green-500/10 transition-all disabled:opacity-50">
-                    {{ isSynced() ? 'TIMER SINCRONIZADO' : 'SINCRONIZAR VELA (M1)' }}
-                </button>
-                <div class="flex-1 grid grid-cols-2 gap-3">
-                     <button (click)="forceScan()" [disabled]="isLoading()" class="h-full bg-purple-600/50 text-white font-bold rounded-3xl shadow-lg hover:opacity-80 disabled:opacity-50">
-                        {{ isLoading() ? "..." : "SCAN" }}
+            <div class="glass-panel rounded-2xl p-6 h-full flex flex-col items-center justify-center gap-4">
+                @if (uploadedImage()) {
+                    <button (click)="analyzeImage()" [disabled]="isLoading()" class="w-full text-center py-4 bg-primary text-black font-bold rounded-lg hover:bg-primary-glow disabled:opacity-40 transition-all font-display shadow-glow">
+                    {{ isLoading() ? "ANALISANDO..." : "ANALISAR IMAGEM" }}
                     </button>
-                    <button (click)="disconnect()" class="h-full bg-red-500/20 text-red-400 border border-red-500/30 font-bold rounded-3xl">
-                        STOP
+                    <button (click)="clearImage()" class="w-full text-center py-3 bg-white/5 text-slate-300 rounded-lg hover:bg-white/10 transition-all font-display text-xs">
+                    LIMPAR
                     </button>
-                </div>
+                } @else {
+                    <div class="text-center text-slate-500">
+                        <span class="material-icons-round text-4xl">image</span>
+                        <p class="text-xs mt-2 font-display">Envie uma imagem para iniciar a análise.</p>
+                    </div>
+                }
             </div>
         }
-      } @else {
-          <div class="h-full bg-black/40 border border-purple-500/20 rounded-3xl p-6 shadow-[0_0_20px_rgba(168,85,247,0.1)] flex flex-col justify-center">
-            <h2 class="text-purple-400 font-bold text-xs mb-4 uppercase tracking-widest">Controles de Upload</h2>
-             @if (uploadedImage()) {
-                <div class="flex flex-col gap-3">
-                    <button (click)="analyzeImage()" [disabled]="isLoading()" class="w-full text-center py-4 bg-purple-600 text-white font-bold rounded-2xl hover:bg-purple-500 disabled:bg-slate-600 transition-all">
-                    {{ isLoading() ? "Analisando..." : "Analisar Imagem" }}
-                    </button>
-                    <button (click)="clearImage()" class="w-full text-center py-3 bg-white/5 text-slate-300 font-bold rounded-2xl hover:bg-white/10 transition-all">
-                    Limpar
-                    </button>
-                </div>
-             } @else {
-                <p class="text-center text-sm text-gray-500">Selecione uma imagem no painel central para analisar.</p>
-             }
-          </div>
-      }
+      </div>
     </aside>
-  </main>
 
+  </main>
+  
+  <footer class="w-full px-8 py-3 mt-auto border-t border-white/5 bg-[#02010a]/80 backdrop-blur-md flex items-center justify-between text-[10px] text-gray-500 font-display tracking-wider z-20">
+    <div class="flex items-center gap-6">
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+        <span class="font-bold">SISTEMA ONLINE</span>
+      </div>
+       <a href="https://www.instagram.com/ia.prisma/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-primary transition-colors duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        <span class="font-bold">@ia.prisma</span>
+      </a>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="opacity-50 font-medium">LATÊNCIA: 12ms</span>
+      <span class="text-white/40 font-medium">v2.4.0 (PRO)</span>
+    </div>
+  </footer>
 </div>
+} @else {
+  <app-login (loginSuccess)="handleLoginSuccess()"></app-login>
+}
