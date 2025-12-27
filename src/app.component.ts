@@ -1,4 +1,5 @@
 
+
 import { ChangeDetectionStrategy, Component, inject, signal, ElementRef, viewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GeminiService } from './services/gemini.service';
@@ -29,7 +30,7 @@ export class AppComponent implements OnDestroy {
   error = signal<string | null>(null);
 
   // Mode selection
-  mode = signal<'upload' | 'live'>('upload');
+  mode = signal<'upload' | 'live'>('live'); // Default to live mode
 
   // Upload mode state
   uploadedImage = signal<string | null>(null);
@@ -150,52 +151,17 @@ export class AppComponent implements OnDestroy {
 
     try {
       const resultText = await this.geminiService.analyzeLiveFrame(imageDataUrl);
-      const parsedResult = this.parseLiveAnalysis(resultText);
+      this.speak(resultText); // Speak the raw, voice-optimized response
+      const parsedResult = this.parsePrismaResponse(resultText);
       this.analysisResult.set(parsedResult);
       if (parsedResult.signal === 'COMPRA' || parsedResult.signal === 'VENDA') {
         this.addToHistory(parsedResult);
-        this.speak(resultText);
       }
     } catch (e: any) {
       this.error.set(e.message || 'Ocorreu um erro na análise ao vivo.');
     } finally {
       this.isLoading.set(false);
     }
-  }
-
-  private parseLiveAnalysis(text: string): Analysis {
-    // New voice-optimized format: "Sinal de COMPRA no EUR/USD. Motivo: PAVIO."
-    const voiceFormatMatch = text.match(/Sinal de (COMPRA|VENDA) no (.*?)\. Motivo: (.*)/i);
-    if (voiceFormatMatch) {
-      const [, signal, asset, reason] = voiceFormatMatch;
-      return {
-        signal: signal.toUpperCase() as 'COMPRA' | 'VENDA',
-        time: new Date().toLocaleTimeString('pt-BR'),
-        reason: reason.trim(),
-        asset: asset.trim(),
-      };
-    }
-
-    // Fallback to the older, more structured format for robustness
-    const signalMatch = text.match(/SINAL:\s*(COMPRA|VENDA|AGUARDAR)/i);
-    const reasonMatch = text.match(/MOTIVO:\s*([\s\S]*)/i);
-    const assetMatch = text.match(/ATIVO:\s*(.*)/i);
-
-    let signal: Analysis['signal'] = 'AGUARDAR';
-    if (signalMatch) {
-      signal = signalMatch[1].toUpperCase() as any;
-    } else if (text.toUpperCase().includes('COMPRA')) {
-      signal = 'COMPRA';
-    } else if (text.toUpperCase().includes('VENDA')) {
-      signal = 'VENDA';
-    }
-
-    return {
-      signal: signal,
-      time: new Date().toLocaleTimeString('pt-BR'),
-      reason: reasonMatch ? reasonMatch[1].trim() : text,
-      asset: assetMatch ? assetMatch[1].trim() : '---',
-    };
   }
 
   // --- Image Upload Methods ---
@@ -257,11 +223,11 @@ export class AppComponent implements OnDestroy {
 
     try {
       const resultText = await this.geminiService.analyzeChart(image);
-      const parsedResult = this.parseAnalysis(resultText);
+      this.speak(resultText);
+      const parsedResult = this.parsePrismaResponse(resultText);
       this.analysisResult.set(parsedResult);
       if (parsedResult.signal === 'COMPRA' || parsedResult.signal === 'VENDA') {
         this.addToHistory(parsedResult);
-        this.speak(`Atenção! Sinal identificado. ${parsedResult.signal}`);
       }
     } catch (e: any) {
       this.error.set(e.message || 'Ocorreu um erro desconhecido durante a análise.');
@@ -270,24 +236,35 @@ export class AppComponent implements OnDestroy {
     }
   }
 
-  private parseAnalysis(text: string): Analysis {
-    const signalMatch = text.match(/SINAL:\s*(COMPRA|VENDA|AGUARDAR)/i);
-    const reasonMatch = text.match(/MOTIVO:\s*([\s\S]*)/i);
-    const assetMatch = text.match(/ATIVO:\s*(.*)/i);
-    const assertMatch = text.match(/ASSERTIVIDADE:\s*(.*)/i);
+  private parsePrismaResponse(text: string): Analysis {
+    const parts = text.split('|').map(p => p.trim());
+    let analysis: Partial<Analysis> = {};
+
+    parts.forEach(part => {
+        if (part.startsWith('ATIVO:')) {
+            analysis.asset = part.replace('ATIVO:', '').trim();
+        } else if (part.startsWith('SINAL:')) {
+            analysis.signal = part.replace('SINAL:', '').trim().toUpperCase() as any;
+        } else if (part.startsWith('ASSERTIVIDADE:')) {
+            analysis.assertividade = part.replace('ASSERTIVIDADE:', '').trim();
+        } else if (part.startsWith('MOTIVO:')) {
+            analysis.reason = part.replace('MOTIVO:', '').trim();
+        }
+    });
 
     return {
-      signal: signalMatch ? (signalMatch[1].toUpperCase() as any) : 'ERRO',
+      signal: analysis.signal || 'ERRO',
       time: new Date().toLocaleTimeString('pt-BR'),
-      reason: reasonMatch ? reasonMatch[1].trim() : 'Não foi possível extrair o motivo da análise. Resposta completa: ' + text,
-      asset: assetMatch ? assetMatch[1].trim() : '---',
-      assertividade: assertMatch ? assertMatch[1].trim() : '--%',
+      reason: analysis.reason || 'Análise Inconclusiva',
+      asset: analysis.asset || '---',
+      assertividade: analysis.assertividade || '--%'
     };
   }
   
   private speak(text: string): void {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
+      // FIX: Corrected typo from 'SpeechSynthesisUtterce' to 'SpeechSynthesisUtterance'.
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'pt-BR';
       utterance.rate = 1.2;

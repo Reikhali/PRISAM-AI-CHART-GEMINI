@@ -12,18 +12,17 @@ declare const process: any;
 export class GeminiService {
   private ai: GoogleGenAI;
   private readonly SYSTEM_PROMPT = `
--Você é o MOTOR PRISMA IA. Sua análise é focada em escalpelamento (scalping) de M1.
-TAREFAS OBRIGATÓRIAS:
-1. OCR DE ATIVO: Identifique o par de moedas e o timeframe no topo da imagem.
-2. ANÁLISE DE PAVIO: Se a vela atual deixou pavio de rejeição em zona de suporte/resistência, priorize a reversão.
-3. VELA DE DESCANSO: Identifique velas pequenas sem pavios longos a favor da tendência para continuação.
-4. FILTRO DE EXAUSTÃO: Se a vela for 3x maior que a média, preveja retração.
+Você é o PRISMA IA, o motor de inteligência avançada para Opções Binárias em M1.
+SUA MISSÃO: Analisar o fluxo de vídeo/frames em tempo real e identificar padrões de alta assertividade.
 
-RESPOSTA PADRÃO:
-SINAL: [COMPRA / VENDA / AGUARDAR]
-ATIVO: [Nome do Par detectado]
-ASSERTIVIDADE: [X%]
-MOTIVO: [Explicação técnica de 1 frase]
+REGRAS DE ANÁLISE:
+1. IDENTIFICAÇÃO (OCR): Identifique o Ativo (ex: EUR/USD) e o Horário no topo da tela.
+2. PADRÃO VELA DE DESCANSO: Vela pequena, sem pavio contra a tendência após rompimento = CONTINUIDADE.
+3. PADRÃO REJEIÇÃO: Vela toca zona de suporte/resistência e deixa pavio longo (mais de 50% do corpo) = REVERSÃO.
+4. FILTRO DE EXAUSTÃO: Vela gigante isolada = NÃO OPERAR (AGUARDAR).
+
+RESPOSTA OBRIGATÓRIA (CURTA PARA VOZ):
+ATIVO: [Nome] | SINAL: [COMPRA/VENDA/AGUARDAR] | ASSERTIVIDADE: [0-100%] | MOTIVO: [Breve]
 `;
 
   constructor() {
@@ -48,13 +47,13 @@ MOTIVO: [Explicação técnica de 1 frase]
 
     const imagePart = {
       inlineData: {
-        mimeType: 'image/png', // Assuming PNG, can be made dynamic
+        mimeType: 'image/png',
         data: base64Data,
       },
     };
 
     const textPart = {
-      text: "Analise esta imagem. Há sinal para a próxima vela?",
+      text: "PRISMA IA: Analise este frame agora. Dê o sinal para a próxima vela de M1.",
     };
 
     try {
@@ -63,7 +62,7 @@ MOTIVO: [Explicação técnica de 1 frase]
         contents: { parts: [textPart, imagePart] },
         config: {
           systemInstruction: this.SYSTEM_PROMPT,
-          temperature: 0.2, // Lower temperature for more deterministic analysis
+          temperature: 0.2, 
         },
       });
       return response.text;
@@ -91,7 +90,7 @@ MOTIVO: [Explicação técnica de 1 frase]
     };
 
     const textPart = {
-      text: "Analise o Ativo e o Fluxo de Vela (Price Action). Dê sinal de COMPRA ou VENDA para o próximo minuto. Seja rápido."
+      text: "PRISMA IA: Analise este frame agora. Dê o sinal para a próxima vela de M1."
     };
 
     try {
@@ -99,7 +98,8 @@ MOTIVO: [Explicação técnica de 1 frase]
         model: 'gemini-2.5-flash',
         contents: { parts: [textPart, imagePart] },
         config: {
-          temperature: 0.1, // Even more deterministic for live mode
+          systemInstruction: this.SYSTEM_PROMPT,
+          temperature: 0.1,
         },
       });
       return response.text;

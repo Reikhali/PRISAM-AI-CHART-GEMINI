@@ -1,27 +1,13 @@
 
-<div class="min-h-screen w-full p-4 font-sans flex flex-col">
+<div class="min-h-screen bg-[#020205] text-white p-4 font-sans flex flex-col">
   
-  <!-- HEADER SUPERIOR -->
-  <header class="flex-shrink-0 flex items-center justify-between max-w-[1400px] w-full mx-auto mb-6 px-4 py-3 border-b border-purple-500/10">
-    <div class="flex items-center gap-3">
-      <div class="p-2 bg-purple-600/20 rounded-lg border border-purple-500/40">
-        <svg class="w-6 h-6 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V7.5a2.25 2.25 0 0 0-2.25-2.25H7.5A2.25 2.25 0 0 0 5.25 7.5v9.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
-      </div>
-      <div>
+  <!-- This is a simplified header for the new layout -->
+  <header class="flex-shrink-0 flex items-center justify-between max-w-[1400px] w-full mx-auto mb-4 px-2">
+      <div class="flex items-center gap-3">
         <h1 class="text-xl font-black tracking-widest text-white">PRISMA <span class="text-purple-500 prisma-text-glow">AI</span></h1>
-        <p class="text-[10px] text-purple-300/50 font-mono uppercase tracking-widest">Neural Analysis System</p>
       </div>
-    </div>
-    
-    <div class="flex gap-6 items-center">
-      <div class="text-right">
-        <p class="text-[10px] text-gray-500 uppercase">Server Status</p>
-        <p class="text-xs font-bold text-purple-400 flex items-center justify-end gap-2">
-          <span class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span> LATENCY: 24ms
-        </p>
-      </div>
-      <!-- Mode Switcher -->
-      <div class="flex items-center gap-1 p-1 rounded-lg bg-black/40 border border-purple-500/20">
+       <!-- Mode Switcher -->
+       <div class="flex items-center gap-1 p-1 rounded-lg bg-black/40 border border-purple-500/20">
         <button 
           (click)="setMode('live')"
           class="px-3 py-1 text-xs font-bold rounded-md transition-colors"
@@ -35,173 +21,146 @@
           UPLOAD
         </button>
       </div>
-    </div>
   </header>
 
-  <!-- GRID PRINCIPAL -->
-  <main class="flex-grow max-w-[1400px] w-full mx-auto grid grid-cols-12 gap-6">
+  <main class="flex-grow max-w-[1400px] w-full mx-auto grid grid-cols-12 gap-6 h-[85vh]">
     
-    <!-- COLUNA ESQUERDA: Status e Ativo (3 colunas) -->
+    <!-- COLUNA ESQUERDA: Market Intelligence & History -->
     <aside class="col-span-12 lg:col-span-3 flex flex-col gap-4">
-      <div class="prisma-glass border border-purple-500/20 rounded-2xl p-5">
-        <h3 class="text-xs font-bold text-purple-400 mb-4 flex items-center gap-2 uppercase">
-          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
-          Market Info
-        </h3>
-        <div class="space-y-4">
-          <div>
-            <label class="text-[10px] text-gray-500 uppercase">Ativo Detectado</label>
-            <div class="text-lg font-mono font-bold text-white">{{ analysisResult()?.asset || '---' }}</div>
-          </div>
-          <div>
-            <label class="text-[10px] text-gray-500 uppercase">Assertividade do Par</label>
-            <div class="text-lg font-mono font-bold text-green-400">{{ analysisResult()?.assertividade || '--%' }}</div>
-          </div>
+        <!-- Market Intelligence -->
+        <div class="bg-black/40 border border-purple-500/20 rounded-3xl p-6 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
+            <h2 class="text-purple-400 font-bold text-xs mb-6 uppercase tracking-widest">Market Intelligence</h2>
+            <div class="space-y-6">
+                <div>
+                    <p class="text-[10px] text-gray-500 uppercase">Ativo Lido</p>
+                    <p class="text-xl font-black text-white truncate">{{ analysisResult()?.asset || '---' }}</p>
+                </div>
+                <div class="p-4 bg-purple-600/10 rounded-2xl border border-purple-500/20">
+                    <p class="text-[10px] text-purple-300 uppercase">Confidence Score</p>
+                    <p class="text-2xl font-black text-purple-500">{{ analysisResult()?.assertividade || '--%' }}</p>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <div class="prisma-glass border border-purple-500/20 rounded-2xl p-5 flex-1 flex flex-col overflow-hidden">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xs font-bold text-purple-400 flex items-center gap-2 uppercase">
-            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-            Sinais Recentes
-          </h3>
-          @if(history().length > 0) {
-            <button (click)="clearHistory()" class="text-gray-500 hover:text-red-400 text-[10px] uppercase font-bold transition-colors">Limpar</button>
-          }
+        <!-- History Panel -->
+        <div class="bg-black/40 border border-purple-500/20 rounded-3xl p-5 flex-1 flex flex-col overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.1)]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xs font-bold text-purple-400 flex items-center gap-2 uppercase">
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                    Sinais Recentes
+                </h3>
+                @if(history().length > 0) {
+                    <button (click)="clearHistory()" class="text-gray-500 hover:text-red-400 text-[10px] uppercase font-bold transition-colors">Limpar</button>
+                }
+            </div>
+            <div class="flex-1 overflow-y-auto -mr-2 pr-2">
+                <app-history-panel 
+                    [history]="history()"
+                    (markWin)="markAsWin($event)"
+                    (markLoss)="markAsLoss($event)"
+                />
+            </div>
         </div>
-        <div class="flex-1 overflow-y-auto -mr-2 pr-2">
-            <app-history-panel 
-                [history]="history()"
-                (markWin)="markAsWin($event)"
-                (markLoss)="markAsLoss($event)"
-            />
-        </div>
-      </div>
     </aside>
 
     <!-- CENTRO: VISOR DO GRÁFICO (6 colunas) -->
-    <section class="col-span-12 lg:col-span-6 relative group flex flex-col">
-      <div class="relative h-full w-full bg-black rounded-3xl border border-purple-500/30 overflow-hidden flex items-center justify-center prisma-border-glow">
+    <main class="col-span-12 lg:col-span-6 relative rounded-3xl border-2 border-purple-500/30 overflow-hidden bg-black shadow-[0_0_40px_rgba(168,85,247,0.2)]">
         @if(isCapturing()) { <div class="prisma-scan-line"></div> }
-        
+
         <video #videoElement autoPlay muted playsInline class="w-full h-full object-contain"></video>
+        <canvas #canvasElement class="hidden"></canvas>
 
         @if (!isCapturing() && mode() === 'live') {
           <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-            <svg class="w-20 h-20 text-purple-500/10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" d="M15.75 10.5l4.72-4.72a.75.75 0 0 0-1.06-1.06L15 9.44V4.5a.75.75 0 0 0-1.5 0v4.94L9.82 5.72a.75.75 0 0 0-1.06 1.06l4.72 4.72M15 12.75a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" /><path stroke-linecap="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a4.5 4.5 0 0 0 4.5-4.5V8.25a4.5 4.5 0 0 0-4.5-4.5H6.75a4.5 4.5 0 0 0-4.5 4.5v6.75Z" /></svg>
-            <p class="mt-4 text-purple-400/50">Sensor Visual Desconectado</p>
+             <p class="mt-4 text-purple-400/50">Sensor Desconectado</p>
           </div>
         }
+
         @if (mode() === 'upload') {
             @if (uploadedImage()) {
                 <img [src]="uploadedImage()" alt="Chart preview" class="absolute inset-0 rounded-3xl w-full h-full object-contain">
             } @else {
-                <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-                    <svg class="w-20 h-20 text-purple-500/10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
-                    <p class="mt-4 text-purple-400/50">Aguardando upload de imagem</p>
+                <div 
+                    (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
+                    class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 border-2 border-dashed rounded-3xl transition-colors"
+                    [class.border-purple-500]="isDragging()" [class.border-transparent]="!isDragging()">
+                    <p class="text-sm text-slate-400">Arraste uma imagem aqui ou 
+                        <label for="file-upload" class="cursor-pointer font-semibold text-purple-400 hover:text-purple-300">
+                        selecione
+                        <input id="file-upload" type="file" class="sr-only" (change)="onFileSelected($event)" accept="image/*">
+                        </label>
+                    </p>
                 </div>
             }
         }
         
-        <canvas #canvasElement class="hidden"></canvas>
-
-        @if (analysisResult(); as result) {
-            <div class="absolute bottom-6 left-6 right-6 p-4 prisma-glass border border-purple-500/40 rounded-xl flex items-center justify-between animate-fade-in">
-            <div>
-                <span class="text-[10px] text-purple-400 font-bold uppercase tracking-tighter">Última Análise</span>
-                <p class="text-sm font-medium text-gray-300">{{ result.reason }}</p>
-            </div>
-            <div class="text-right">
-                <span class="text-2xl font-black italic" [class]="getSignalClasses(result.signal)">{{ result.signal }}</span>
-            </div>
-            </div>
-        }
-      </div>
-    </section>
-
-    <!-- COLUNA DIREITA: Comandos e Timer (3 colunas) -->
-    <aside class="col-span-12 lg:col-span-3 flex flex-col gap-4">
-        @if (mode() === 'live') {
-            <div class="prisma-glass border border-purple-500/30 rounded-2xl p-6 flex flex-col items-center justify-center gap-2">
-                <span class="text-xs text-purple-300 font-bold uppercase">Timer Sincronizado</span>
-                <span class="text-5xl font-black font-mono text-white tracking-tighter">{{ countdown() | number:'2.0-0' }}</span>
+        <div class="absolute bottom-6 left-6 right-6 flex items-center justify-between">
+            <div class="bg-black/80 backdrop-blur-xl border border-purple-500/40 p-3 rounded-2xl">
+                 @if (isLoading()) {
+                    <p class="text-xs text-purple-400 font-bold animate-pulse">ANALISANDO...</p>
+                 } @else if (isCapturing()) {
+                    <p class="text-xs text-purple-400 font-bold">PRISMA IA MONITORING...</p>
+                 } @else if (analysisResult(); as result) {
+                    <p class="text-xs text-white font-bold">{{result.reason}}</p>
+                 } @else {
+                    <p class="text-xs text-gray-500 font-bold">PRISMA IA INATIVO</p>
+                 }
             </div>
 
-            <div class="flex flex-col gap-3 flex-1">
-                @if (!isCapturing()) {
-                    <button (click)="connectToChart()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-bold flex flex-col items-center justify-center gap-2 transition-all shadow-[0_0_30px_rgba(168,85,247,0.2)]">
-                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" d="M15.75 10.5l4.72-4.72a.75.75 0 0 0-1.06-1.06L15 9.44V4.5a.75.75 0 0 0-1.5 0v4.94L9.82 5.72a.75.75 0 0 0-1.06 1.06l4.72 4.72M15 12.75a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" /><path stroke-linecap="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a4.5 4.5 0 0 0 4.5-4.5V8.25a4.5 4.5 0 0 0-4.5-4.5H6.75a4.5 4.5 0 0 0-4.5 4.5v6.75Z" /></svg>
-                        CONECTAR SENSOR
-                    </button>
-                } @else {
-                    <button (click)="syncTimer()" [disabled]="isSynced()" class="py-4 bg-white/5 hover:bg-white/10 border border-purple-500/20 disabled:opacity-50 disabled:hover:bg-white/5 rounded-2xl font-bold text-sm uppercase transition-all">
-                        {{ isSynced() ? 'SINCRONIZADO' : 'SINCRONIZAR VELA' }}
-                    </button>
-                    <button (click)="forceScan()" [disabled]="isLoading()" class="py-4 bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/20 rounded-2xl font-bold text-sm uppercase transition-all disabled:opacity-50">
-                        {{ isLoading() ? 'ANALISANDO...' : 'FORÇAR ANÁLISE' }}
-                    </button>
-                    <button (click)="disconnect()" class="py-4 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-2xl font-bold text-red-500 text-sm uppercase transition-all">
-                        Desconectar
-                    </button>
-                }
-            </div>
-        } @else {
-             <div class="prisma-glass border border-purple-500/20 rounded-2xl p-5 flex flex-col flex-1">
-                <h3 class="text-xs font-bold text-purple-400 mb-4 flex items-center gap-2 uppercase">CONTROLES</h3>
-                <div 
-                    (dragover)="onDragOver($event)"
-                    (dragleave)="onDragLeave($event)"
-                    (drop)="onDrop($event)"
-                    class="relative flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-300"
-                    [class.border-purple-500]="isDragging()"
-                    [class.border-slate-600]="!isDragging()">
-                    <p class="text-sm text-slate-400">Arraste uma imagem aqui</p>
-                    <p class="text-xs text-slate-500 my-1">ou</p>
-                    <label for="file-upload" class="relative cursor-pointer font-semibold text-purple-400 hover:text-purple-300 transition-colors">
-                        <span>Selecione um arquivo</span>
-                        <input id="file-upload" name="file-upload" type="file" class="sr-only" (change)="onFileSelected($event)" accept="image/*">
-                    </label>
+            @if (analysisResult(); as result) {
+                <div class="text-right bg-black/80 backdrop-blur-xl border border-purple-500/40 py-2 px-4 rounded-2xl">
+                    <span class="text-xl font-black italic" [class]="getSignalClasses(result.signal)">{{ result.signal }}</span>
                 </div>
-                 @if (uploadedImage()) {
-                    <div class="mt-4 flex flex-col gap-2">
-                        <button (click)="analyzeImage()" [disabled]="isLoading()" class="w-full text-center py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-500 disabled:bg-slate-600 transition-all">
-                        {{ isLoading() ? "Analisando..." : "Analisar Imagem" }}
-                        </button>
-                        <button (click)="clearImage()" class="w-full text-center py-3 bg-white/5 text-slate-300 font-bold rounded-lg hover:bg-white/10 transition-all">
-                        Limpar
-                        </button>
-                    </div>
-                }
+            }
+        </div>
+    </main>
+
+    <!-- COLUNA DIREITA: Comandos -->
+    <aside class="col-span-12 lg:col-span-3 flex flex-col gap-4">
+      @if (mode() === 'live') {
+        <div class="bg-black/40 border border-purple-500/20 rounded-3xl p-6 flex flex-col items-center justify-center h-1/3">
+            <span class="text-5xl font-black text-white font-mono tracking-tighter">{{ countdown() | number:'2.0-0' }}</span>
+            <span class="text-[10px] text-purple-400 uppercase font-bold mt-2">Next Candle Sync</span>
+        </div>
+        
+        @if (!isCapturing()) {
+            <button (click)="connectToChart()" class="h-full bg-purple-600 hover:bg-purple-500 rounded-3xl font-black text-lg transition-all shadow-[0_0_25px_rgba(168,85,247,0.5)] active:scale-95">
+                CONNECT SENSOR
+            </button>
+        } @else {
+            <div class="h-2/3 flex flex-col gap-3">
+                <button (click)="syncTimer()" [disabled]="isSynced()" class="flex-1 w-full bg-black/40 border border-green-500/50 text-green-400 font-bold rounded-3xl hover:bg-green-500/10 transition-all disabled:opacity-50">
+                    {{ isSynced() ? 'TIMER SINCRONIZADO' : 'SINCRONIZAR VELA (M1)' }}
+                </button>
+                <div class="flex-1 grid grid-cols-2 gap-3">
+                     <button (click)="forceScan()" [disabled]="isLoading()" class="h-full bg-purple-600/50 text-white font-bold rounded-3xl shadow-lg hover:opacity-80 disabled:opacity-50">
+                        {{ isLoading() ? "..." : "SCAN" }}
+                    </button>
+                    <button (click)="disconnect()" class="h-full bg-red-500/20 text-red-400 border border-red-500/30 font-bold rounded-3xl">
+                        STOP
+                    </button>
+                </div>
             </div>
         }
+      } @else {
+          <div class="h-full bg-black/40 border border-purple-500/20 rounded-3xl p-6 shadow-[0_0_20px_rgba(168,85,247,0.1)] flex flex-col justify-center">
+            <h2 class="text-purple-400 font-bold text-xs mb-4 uppercase tracking-widest">Controles de Upload</h2>
+             @if (uploadedImage()) {
+                <div class="flex flex-col gap-3">
+                    <button (click)="analyzeImage()" [disabled]="isLoading()" class="w-full text-center py-4 bg-purple-600 text-white font-bold rounded-2xl hover:bg-purple-500 disabled:bg-slate-600 transition-all">
+                    {{ isLoading() ? "Analisando..." : "Analisar Imagem" }}
+                    </button>
+                    <button (click)="clearImage()" class="w-full text-center py-3 bg-white/5 text-slate-300 font-bold rounded-2xl hover:bg-white/10 transition-all">
+                    Limpar
+                    </button>
+                </div>
+             } @else {
+                <p class="text-center text-sm text-gray-500">Selecione uma imagem no painel central para analisar.</p>
+             }
+          </div>
+      }
     </aside>
-
   </main>
 
-  <!-- FOOTER BAR -->
-  <footer class="flex-shrink-0 max-w-[1400px] w-full mx-auto mt-6 flex justify-between px-4 text-[10px] text-gray-600 font-mono">
-    <span>© 2025 PRISMA IA - TRADING INTELLIGENCE</span>
-    <span class="text-purple-500/50 italic">
-        @if (isCapturing()) {
-            PRISMA IA ATIVADO
-        } @else {
-            PRISMA IA INATIVO
-        }
-    </span>
-  </footer>
 </div>
-
-<style>
-  @keyframes fade-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .animate-fade-in {
-    animation: fade-in 0.5s ease-out forwards;
-  }
-  .text-COMPRA { color: #22c55e; /* green-500 */ }
-  .text-VENDA { color: #ef4444; /* red-500 */ }
-  .text-AGUARDAR { color: #eab308; /* yellow-500 */ }
-  .text-ERRO { color: #64748b; /* slate-500 */ }
-</style>
+    
