@@ -142,7 +142,7 @@ export class AppComponent implements OnDestroy {
       return;
     }
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.7);
 
     try {
       const resultText = await this.geminiService.analyzeLiveFrame(imageDataUrl);
@@ -150,7 +150,7 @@ export class AppComponent implements OnDestroy {
       this.analysisResult.set(parsedResult);
       if (parsedResult.signal === 'COMPRA' || parsedResult.signal === 'VENDA') {
         this.addToHistory(parsedResult);
-        this.speak(`Sinal Prisma Live. ${parsedResult.signal}. ${parsedResult.reason}`);
+        this.speak(resultText);
       }
     } catch (e: any) {
       this.error.set(e.message || 'Ocorreu um erro na análise ao vivo.');
@@ -160,6 +160,19 @@ export class AppComponent implements OnDestroy {
   }
 
   private parseLiveAnalysis(text: string): Analysis {
+    // New voice-optimized format: "Sinal de COMPRA no EUR/USD. Motivo: PAVIO."
+    const voiceFormatMatch = text.match(/Sinal de (COMPRA|VENDA) no (.*?)\. Motivo: (.*)/i);
+    if (voiceFormatMatch) {
+      const [, signal, asset, reason] = voiceFormatMatch;
+      return {
+        signal: signal.toUpperCase() as 'COMPRA' | 'VENDA',
+        time: new Date().toLocaleTimeString('pt-BR'),
+        reason: reason.trim(),
+        asset: asset.trim(),
+      };
+    }
+
+    // Fallback to the older, more structured format for robustness
     const signalMatch = text.match(/SINAL:\s*(COMPRA|VENDA|AGUARDAR)/i);
     const reasonMatch = text.match(/MOTIVO:\s*([\s\S]*)/i);
     const assetMatch = text.match(/ATIVO:\s*(.*)/i);
@@ -273,7 +286,7 @@ export class AppComponent implements OnDestroy {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'pt-BR';
-      utterance.rate = 1.1;
+      utterance.rate = 1.2;
       window.speechSynthesis.speak(utterance);
     } else {
       console.warn('Text-to-speech não é suportado neste navegador.');

@@ -27,13 +27,15 @@ MOTIVO: [Explicação técnica de 1 frase]
 `;
 
   private readonly SYSTEM_PROMPT_LIVE = `
-Você é o Prisma IA em modo LIVE. Sua análise é URGENTE e focada no MOMENTO ATUAL da vela.
-Analise a imagem, que é um frame de um vídeo do gráfico.
-Sua missão é detectar força ou exaustão no movimento da vela atual para prever a PRÓXIMA vela.
-- Se a vela atual mostra FORÇA DE FLUXO (corpo grande, fechando perto da máxima/mínima), anuncie a continuação.
-- Se a vela atual mostra EXAUSTÃO (pavio longo contra o movimento, corpo pequeno), anuncie a reversão.
-- Se o movimento for fraco ou incerto, responda apenas: AGUARDAR.
-RESPONDA DE FORMA DIRETA E RÁPIDA. Exemplo: "SINAL: COMPRA, MOTIVO: Força de fluxo de alta." ou "SINAL: VENDA, MOTIVO: Exaustão compradora com pavio superior."
+Você é o PRISMA IA. Analise este frame de M1.
+Siga esta hierarquia de decisão:
+1. IDENTIFICAÇÃO: Qual o Ativo e Horário na tela?
+2. REJEIÇÃO: A vela atual tem pavio longo em zona de suporte/resistência anterior? (Se sim, Reversão).
+3. CONTINUIDADE: A vela atual é pequena e sem pavio superior em tendência de alta? (Se sim, Compra/Call).
+4. EXAUSTÃO: A vela é desproporcionalmente grande? (Se sim, ignore sinal de continuidade).
+
+RESPOSTA CURTA PARA VOZ:
+"Sinal de [COMPRA/VENDA] no [ATIVO]. Motivo: [PAVIO/FLUXO/DESCANSO]."
 `;
 
   constructor() {
@@ -100,14 +102,10 @@ RESPONDA DE FORMA DIRETA E RÁPIDA. Exemplo: "SINAL: COMPRA, MOTIVO: Força de f
       },
     };
 
-    const textPart = {
-      text: "Analise este gráfico de M1 agora. Identifique o ATIVO (moeda), o HORÁRIO e dê o SINAL (COMPRA/VENDA/AGUARDAR). Use o protocolo de pavios e fluxo.",
-    };
-
     try {
       const response: GenerateContentResponse = await this.ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: { parts: [textPart, imagePart] },
+        contents: { parts: [imagePart] },
         config: {
           systemInstruction: this.SYSTEM_PROMPT_LIVE,
           temperature: 0.1, // Even more deterministic for live mode
