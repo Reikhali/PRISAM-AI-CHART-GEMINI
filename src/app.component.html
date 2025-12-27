@@ -135,29 +135,46 @@
     }
 
     <!-- Common Result Display -->
-    @if (error() && mode() === 'live') { 
+    @if (error() && (mode() === 'live' || mode() === 'upload')) { 
         <div class="mt-4 p-4 bg-red-900/50 border border-red-700 text-red-300 rounded-lg text-sm"><strong>Erro:</strong> {{ error() }}</div> 
     }
-    @if (analysisResult()) {
+    @if (analysisResult(); as result) {
       <div class="mt-4 space-y-4 animate-fade-in"> 
         <h2 class="text-lg font-semibold text-slate-300 text-center">Última Análise</h2> 
-        <div class="border rounded-lg p-4" [class]="getSignalClasses(analysisResult()!.signal)"> 
+        <div class="border rounded-lg p-4" [class]="getSignalClasses(result.signal)"> 
           <p class="text-sm uppercase tracking-widest">Sinal</p> 
-          <p class="text-4xl font-bold mt-1">{{ analysisResult()!.signal }}</p> 
+          <p class="text-4xl font-bold mt-1">{{ result.signal }}</p> 
         </div> 
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="border border-slate-700 bg-slate-800/50 rounded-lg p-4 text-center"> 
+            <p class="text-sm uppercase tracking-widest text-slate-400">Ativo</p> 
+            <p class="text-slate-200 mt-2 font-mono">{{ result.asset || '---' }}</p> 
+          </div> 
+          <div class="border border-slate-700 bg-slate-800/50 rounded-lg p-4 text-center"> 
+            <p class="text-sm uppercase tracking-widest text-slate-400">Assertividade</p> 
+            <p class="text-slate-200 mt-2 font-mono">{{ result.assertividade || '--%' }}</p> 
+          </div> 
+        </div>
+
         <div class="border border-slate-700 bg-slate-800/50 rounded-lg p-4"> 
           <p class="text-sm uppercase tracking-widest text-slate-400">Motivo</p> 
-          <p class="text-slate-200 mt-2">{{ analysisResult()!.reason }}</p> 
-        </div> 
-        <div class="border border-slate-700 bg-slate-800/50 rounded-lg p-4 text-center"> 
-          <p class="text-sm uppercase tracking-widest text-slate-400">Horário da Análise</p> 
-          <p class="text-slate-200 mt-2 font-mono">{{ analysisResult()!.time }}</p> 
+          <p class="text-slate-200 mt-2">{{ result.reason }}</p> 
         </div> 
       </div>
     } @else if(isCapturing()) {
       <div class="mt-4 text-center text-slate-400 text-sm">
         <p>Aguardando sincronização e análise...</p>
       </div>
+    }
+
+    <!-- History Panel -->
+    @if (history().length > 0 || isCapturing()) {
+      <app-history-panel 
+        [history]="history()"
+        (markWin)="markAsWin($event)"
+        (markLoss)="markAsLoss($event)"
+      />
     }
     
     <footer class="text-center mt-8 text-xs text-slate-600">

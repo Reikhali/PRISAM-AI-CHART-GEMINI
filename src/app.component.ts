@@ -2,11 +2,14 @@
 import { ChangeDetectionStrategy, Component, inject, signal, ElementRef, viewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GeminiService } from './services/gemini.service';
+import { HistoryPanelComponent, HistoryItem } from './history-panel.component';
 
 export interface Analysis {
   signal: 'COMPRA' | 'VENDA' | 'AGUARDAR' | 'ERRO';
   time: string;
   reason: string;
+  asset?: string;
+  assertividade?: string;
 }
 
 @Component({
@@ -15,7 +18,7 @@ export interface Analysis {
   styleUrls: [], // No separate styles file, using Tailwind in HTML
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HistoryPanelComponent],
 })
 export class AppComponent implements OnDestroy {
   private geminiService = inject(GeminiService);
@@ -38,6 +41,9 @@ export class AppComponent implements OnDestroy {
   countdown = signal(60);
   private videoStream: MediaStream | null = null;
   private countdownIntervalId: any = null;
+  
+  // History state
+  history = signal<HistoryItem[]>([]);
 
   // Element Refs
   videoElement = viewChild<ElementRef<HTMLVideoElement>>('videoElement');
@@ -128,7 +134,6 @@ export class AppComponent implements OnDestroy {
 
     this.isLoading.set(true);
     
-    // High-resolution capture
     canvas.width = 1280;
     canvas.height = 720;
     const ctx = canvas.getContext('2d');
@@ -144,6 +149,7 @@ export class AppComponent implements OnDestroy {
       const parsedResult = this.parseLiveAnalysis(resultText);
       this.analysisResult.set(parsedResult);
       if (parsedResult.signal === 'COMPRA' || parsedResult.signal === 'VENDA') {
+        this.addToHistory(parsedResult);
         this.speak(`Sinal Prisma Live. ${parsedResult.signal}. ${parsedResult.reason}`);
       }
     } catch (e: any) {
@@ -156,6 +162,7 @@ export class AppComponent implements OnDestroy {
   private parseLiveAnalysis(text: string): Analysis {
     const signalMatch = text.match(/SINAL:\s*(COMPRA|VENDA|AGUARDAR)/i);
     const reasonMatch = text.match(/MOTIVO:\s*([\s\S]*)/i);
+    const assetMatch = text.match(/ATIVO:\s*(.*)/i);
 
     let signal: Analysis['signal'] = 'AGUARDAR';
     if (signalMatch) {
@@ -170,6 +177,7 @@ export class AppComponent implements OnDestroy {
       signal: signal,
       time: new Date().toLocaleTimeString('pt-BR'),
       reason: reasonMatch ? reasonMatch[1].trim() : text,
+      asset: assetMatch ? assetMatch[1].trim() : '---',
     };
   }
 
@@ -235,6 +243,7 @@ export class AppComponent implements OnDestroy {
       const parsedResult = this.parseAnalysis(resultText);
       this.analysisResult.set(parsedResult);
       if (parsedResult.signal === 'COMPRA' || parsedResult.signal === 'VENDA') {
+        this.addToHistory(parsedResult);
         this.speak(`Atenção! Sinal identificado. ${parsedResult.signal}`);
       }
     } catch (e: any) {
@@ -246,19 +255,21 @@ export class AppComponent implements OnDestroy {
 
   private parseAnalysis(text: string): Analysis {
     const signalMatch = text.match(/SINAL:\s*(COMPRA|VENDA|AGUARDAR)/i);
-    const timeMatch = text.match(/HORÁRIO:\s*(.*)/i);
     const reasonMatch = text.match(/MOTIVO:\s*([\s\S]*)/i);
+    const assetMatch = text.match(/ATIVO:\s*(.*)/i);
+    const assertMatch = text.match(/ASSERTIVIDADE:\s*(.*)/i);
 
     return {
       signal: signalMatch ? (signalMatch[1].toUpperCase() as any) : 'ERRO',
-      time: timeMatch ? timeMatch[1].trim() : new Date().toLocaleTimeString('pt-BR'),
+      time: new Date().toLocaleTimeString('pt-BR'),
       reason: reasonMatch ? reasonMatch[1].trim() : 'Não foi possível extrair o motivo da análise. Resposta completa: ' + text,
+      asset: assetMatch ? assetMatch[1].trim() : '---',
+      assertividade: assertMatch ? assertMatch[1].trim() : '--%',
     };
   }
   
   private speak(text: string): void {
     if ('speechSynthesis' in window) {
-      // Cancel any previous speech to avoid overlap
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'pt-BR';
@@ -267,6 +278,33 @@ export class AppComponent implements OnDestroy {
     } else {
       console.warn('Text-to-speech não é suportado neste navegador.');
     }
+  }
+  
+  // --- History Methods ---
+  private addToHistory(analysis: Analysis) {
+    if (analysis.signal !== 'COMPRA' && analysis.signal !== 'VENDA') return;
+
+    const newItem: HistoryItem = {
+      id: Date.now(),
+      time: analysis.time,
+      asset: analysis.asset || '---',
+      direction: analysis.signal,
+      result: 'PENDENTE'
+    };
+
+    this.history.update(current => [newItem, ...current].slice(0, 5));
+  }
+
+  markAsWin(id: number) {
+    this.history.update(current => 
+      current.map(item => item.id === id ? { ...item, result: 'WIN' } : item)
+    );
+  }
+
+  markAsLoss(id: number) {
+    this.history.update(current => 
+      current.map(item => item.id === id ? { ...item, result: 'LOSS' } : item)
+    );
   }
 
   getSignalClasses(signal: string) {
